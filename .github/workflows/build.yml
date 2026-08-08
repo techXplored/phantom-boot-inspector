@@ -1,0 +1,34 @@
+name: Build Phantom Boot Inspector
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore
+        run: dotnet restore TechXplored.PhantomBootInspector.csproj
+
+      - name: Build
+        run: dotnet build TechXplored.PhantomBootInspector.csproj -c Release --no-restore
+
+      - name: Publish Windows x64
+        run: dotnet publish TechXplored.PhantomBootInspector.csproj -c Release -r win-x64 --self-contained false -o artifacts/PhantomBootInspector
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TechXplored-PhantomBootInspector-win-x64
+          path: artifacts/PhantomBootInspector
